@@ -56,4 +56,17 @@
             <func:result><xsl:copy-of select="$format" /></func:result>
     </func:function>
 
+    <func:function name="pdxf:format-number">
+        <xsl:param name="value"/>
+        <xsl:param name="format">0.##</xsl:param>
+        <xsl:choose>
+            <xsl:when test="string(number($value))='NaN'">
+                <xsl:value-of select="format-number(0, $format)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="format-number($value, $format)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </func:function>
+
 </xsl:stylesheet>
