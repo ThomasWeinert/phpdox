@@ -4,6 +4,7 @@
                 xmlns:pdx="http://xml.phpdox.net/src#"
                 xmlns:pdxf="http://xml.phpdox.net/functions">
 
+    <xsl:import href="functions.xsl"/>
     <xsl:import href="components.xsl" />
 
     <xsl:output method="xml" indent="yes" encoding="UTF-8" doctype-system="about:legacy-compat" />
