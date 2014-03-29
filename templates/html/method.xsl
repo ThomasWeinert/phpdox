@@ -30,8 +30,8 @@
                     <xsl:call-template name="sidenav" />
                     <section>
                         <h1><small><xsl:value-of select="$unit/@full" />::</small><xsl:value-of select="$methodName" /></h1>
-                        <h4><xsl:value-of select="$method/pdx:docblock/pdx:description/@compact" /></h4>
-                        <p><xsl:value-of select="$method/pdx:docblock/pdx:description" /></p>
+                        <h4><xsl:value-of select="$method/pdx:docblock//pdx:description/@compact" /></h4>
+                        <p><xsl:value-of select="$method/pdx:docblock//pdx:description" /></p>
                         <xsl:if test="$method/pdx:docblock">
                             <xsl:call-template name="docblock">
                                 <xsl:with-param name="ctx" select="$method" />
@@ -44,13 +44,13 @@
                             <xsl:call-template name="parameterlist" />
                         </xsl:if>
 
-                        <xsl:if test="$method/pdx:docblock/pdx:return">
+                        <xsl:if test="$method/pdx:docblock//pdx:return">
                             <xsl:call-template name="return">
-                                <xsl:with-param name="return" select="$method/pdx:docblock/pdx:return" />
+                                <xsl:with-param name="return" select="$method/pdx:docblock//pdx:return" />
                             </xsl:call-template>
                         </xsl:if>
 
-                        <xsl:if test="$method/pdx:docblock/pdx:throws">
+                        <xsl:if test="$method/pdx:docblock//pdx:throws">
                             <xsl:call-template name="throws" />
                         </xsl:if>
 
@@ -109,11 +109,11 @@
                     <li><a href="#parameter">Parameter</a></li>
                 </xsl:if>
 
-                <xsl:if test="$method/pdx:docblock/pdx:return">
+                <xsl:if test="$method/pdx:docblock//pdx:return">
                     <li><a href="#return">Return</a></li>
                 </xsl:if>
 
-                <xsl:if test="$method/pdx:docblock/pdx:throws">
+                <xsl:if test="$method/pdx:docblock//pdx:throws">
                     <li><a href="#throws">Throws</a></li>
                 </xsl:if>
 
@@ -147,8 +147,24 @@
         <dl class="styled">
             <xsl:for-each select="$method/pdx:parameter">
                 <xsl:variable name="param" select="." />
-                <dt><code>$<xsl:value-of select="@name" /></code></dt>
-                <dd><xsl:value-of select="$method/pdx:docblock/pdx:param[@variable = concat('$', $param/@name)]/@description" /></dd>
+                <xsl:variable name="docparam" select="$method/pdx:docblock//pdx:param[@variable = concat('$', $param/@name)]" />
+                <dt><code>$<xsl:value-of select="@name" /></code>
+                —
+                <xsl:choose>
+                    <xsl:when test="$param/@type = 'object'">
+                        <a href="#"><xsl:value-of select="$docparam/pdx:type/@full" /></a>
+                    </xsl:when>
+                    <xsl:when test="$param/@type = '{unknown}'">
+                        <xsl:value-of select="$docparam/@type" />
+                    </xsl:when>
+                    <xsl:otherwise><xsl:value-of select="@type" /></xsl:otherwise>
+                </xsl:choose>
+                </dt>
+                <dd><xsl:value-of select="$docparam/@description" />
+                    <xsl:if test="$docparam/text() != ''">
+                        <br/><xsl:copy-of select="pdxf:nl2br($docparam)" />
+                    </xsl:if>
+                </dd>
             </xsl:for-each>
         </dl>
     </xsl:template>
@@ -175,8 +191,8 @@
                 <xsl:copy-of select="pdxf:link($param/pdx:type, '', $param/pdx:type/@name)" />
             </xsl:when>
             <xsl:when test="$param/@type = '{unknown}'">
-                <xsl:if test="$method/pdx:docblock/pdx:param[@variable = concat('$', $param/@name)]">
-                    <xsl:variable name="dparam" select="$method/pdx:docblock/pdx:param[@variable = concat('$', $param/@name)]" />
+                <xsl:if test="$method/pdx:docblock//pdx:param[@variable = concat('$', $param/@name)]">
+                    <xsl:variable name="dparam" select="$method/pdx:docblock//pdx:param[@variable = concat('$', $param/@name)]" />
                     <xsl:choose>
                         <xsl:when test="$dparam/@type = 'object'">
                             <xsl:copy-of select="pdxf:link($dparam/pdx:type, '', $dparam/pdx:type/@name)" />
@@ -223,7 +239,7 @@
     <xsl:template name="throws">
         <h2 id="throws">Errors/Exceptions</h2>
         <dl class="styled">
-            <xsl:for-each select="$method/pdx:docblock/pdx:throws">
+            <xsl:for-each select="$method/pdx:docblock//pdx:throws">
                 <dt><code><xsl:copy-of select="pdxf:link(pdx:type, '', pdx:type/@name)" /></code></dt>
                 <dd><xsl:value-of select="@description" /></dd>
             </xsl:for-each>

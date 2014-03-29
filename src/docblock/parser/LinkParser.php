@@ -37,58 +37,18 @@
 
 namespace TheSeer\phpDox\DocBlock {
 
-    class GenericElement {
+    class LinkParser extends GenericParser {
 
-        protected $factory;
+        public function getObject(array $buffer) {
+            $obj = $this->buildObject('link', $buffer);
+            $parts = preg_split("/[\s,]+/", $this->payload, 2, PREG_SPLIT_NO_EMPTY);
+            if (count($parts) == 1) {
 
-        protected $name;
-        protected $body;
-        protected $attributes = array();
-
-        public function __construct(\TheSeer\phpDox\FactoryInterface $factory, $name) {
-            $this->factory = $factory;
-            $this->name = $name;
-        }
-
-        public function getAnnotationName() {
-            return $this->name;
-        }
-
-        public function getBody() {
-            return $this->body;
-        }
-
-        public function __call($method, $value) {
-            if (!preg_match('/^set/', $method)) {
-                throw new GenericElementException("Method '$method' not defined", GenericElementException::MethodNotDefined);
             }
-            // extract attribute name (remove 'set' or 'get' from string)
-            $attribute = strtolower(substr($method, 3));
-            $this->attributes[$attribute] = $value[0];
-        }
-
-        public function setBody($body) {
-            $this->body = $body;
-        }
-
-        public function asDom(\TheSeer\fDOM\fDOMDocument $ctx) {
-            $node = $ctx->createElementNS('http://xml.phpdox.net/src#', strtolower($this->name));
-            foreach($this->attributes as $attribute => $value) {
-                if ($value != '') {
-                    $node->setAttribute($attribute, $value);
-                }
-            }
-            if ($this->body !== null && $this->body !== '') {
-                $parser = $this->factory->getInstanceFor('InlineProcessor', $ctx);
-                $node->appendChild($parser->transformToDom($this->body));
-            }
-            return $node;
+            $obj->setValue($this->payload);
+            return $obj;
         }
 
     }
 
-    class GenericElementException extends \Exception {
-        const MethodNotDefined = 1;
-        const PropertyNotDefined = 2;
-    }
 }
